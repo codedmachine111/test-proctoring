@@ -35,6 +35,16 @@ int main(){
     void *buffers[REQ_BUFFERS]; // Pointer for each buffer (Driver written data)
     query_buffers_and_map(cam_fd, buffer, buffers, REQ_BUFFERS);
 
+    /*
+        Load face cascade classfier from OpenCV
+    */
+    cv::CascadeClassifier face_cascade;
+    std::string face_cascade_name = "assets/haarcascade_frontalface_alt.xml";
+    if(!face_cascade.load(face_cascade_name)){
+        perror("Error loading face cascade!");
+        exit(EXIT_FAILURE);
+    }
+
     /* 
         Start streaming
     */
@@ -44,7 +54,7 @@ int main(){
         Capture images continuously
     */
     while(1){
-        capture_camera_stream(cam_fd, buffer, buffers);
+        capture_camera_stream(cam_fd, buffer, buffers, face_cascade);
         sleep(DURATION);
     }
 

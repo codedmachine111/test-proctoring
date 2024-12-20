@@ -76,7 +76,35 @@ void start_streaming(int cam_fd){
     }
 }
 
-void capture_camera_stream(int cam_fd, struct v4l2_buffer buffer, void **buffers){
+void detect_cheating(cv::CascadeClassifier face_classifer, cv::Mat image){
+
+    time_t rawtime;
+    struct tm *timeinfo;
+
+    time(&rawtime);
+    timeinfo = localtime(&rawtime);
+
+    // cv::Mat image = cv::imread("./capture.jpg");
+    if(image.empty()){
+        printf("imread: Could not read captured image!");
+        return;
+    }
+
+    // Convert image to grayscale
+    cv::Mat image_gray;
+    cv::cvtColor(image, image_gray, cv::COLOR_BGR2GRAY);
+    cv::equalizeHist(image_gray, image_gray);
+
+    // Detect face
+    std::vector<cv::Rect> faces;
+    face_classifer.detectMultiScale(image_gray, faces);
+
+    if(faces.size() == 0){
+        printf("NO FACE DETECTED | TIMESTAMP: %s\n", asctime(timeinfo));
+    }
+}
+
+void capture_camera_stream(int cam_fd, struct v4l2_buffer buffer, void **buffers, cv::CascadeClassifier cc){
     // Dequeue -> process -> Queue
 
     // Configure buffer info
@@ -94,7 +122,19 @@ void capture_camera_stream(int cam_fd, struct v4l2_buffer buffer, void **buffers
     printf("\nCaptured image: %d bytes\n", buffer.length);
 
     // Save captured image
-    write_to_file((u_int8_t*)buffers[buffer.index], buffer.length);
+    // write_to_file((u_int8_t*)buffers[buffer.index], buffer.length);
+
+    // Decode MJPEG data 
+    std::vector<uchar> mjpeg_data((uchar*)buffers[buffer.index], (uchar*)buffers[buffer.index] + buffer.length); // Raw image data in bytes
+    cv::Mat image = cv::imdecode(mjpeg_data, cv::IMREAD_COLOR); // Decode as a BGR image
+    if(image.empty()){
+        printf("Failed to convert image!");
+        exit(EXIT_FAILURE);
+    }
+    
+
+    // Detect cheating
+    detect_cheating(cc, image);
 
     // Queue the buffer again
     if((ioctl(cam_fd, VIDIOC_QBUF, &buffer))==-1){

@@ -1,7 +1,7 @@
 #ifndef IMAGE_CAPTURE_HPP
 #define IMAGE_CAPTURE_HPP
 
-#include <stdio.h>
+#include <iostream>
 #include <stdlib.h>
 #include <fcntl.h>
 #include <linux/videodev2.h>
@@ -9,6 +9,11 @@
 #include <sys/mman.h>
 #include <unistd.h>
 #include <string.h>
+#include <time.h>
+
+#include <opencv4/opencv2/imgcodecs.hpp>
+#include <opencv4/opencv2/objdetect.hpp>
+#include <opencv4/opencv2/imgproc.hpp>
 
 #define DURATION 2
 /*
@@ -25,7 +30,7 @@ void set_camera_format(int cam_fd, struct v4l2_format format);
 void request_buffers(int cam_fd, struct v4l2_requestbuffers reqbufs);
 void query_buffers_and_map(int cam_fd, struct v4l2_buffer buffer, void **buffers, int total_buffers);
 void start_streaming(int cam_fd);
-void capture_camera_stream(int cam_fd, struct v4l2_buffer buffer, void **buffers);
+void capture_camera_stream(int cam_fd, struct v4l2_buffer buffer, void **buffers, cv::CascadeClassifier cv);
 
 
 #endif
