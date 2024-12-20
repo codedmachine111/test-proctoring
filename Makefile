@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -Wall -Wextra -I include
+CFLAGS = -Wall -Wextra -I include -I /usr/local/include/opencv4/
 
 BINDIR = bin
 BUILDDIR = build
