@@ -7,6 +7,7 @@
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 
+#define DURATION 2
 /*
     Camera device config
 */
@@ -14,7 +15,7 @@
 #define W 1280
 #define H 720
 #define PIXEL_FORMAT V4L2_PIX_FMT_MJPEG
-#define REQ_BUFFERS 3
+#define REQ_BUFFERS 1
 
 void write_to_file(u_int8_t *data, int data_len){
     const char *output_filename = "capture.jpg";
@@ -118,25 +119,29 @@ int main(){
     /* 
         Capture image : Dequeue -> process -> Queue
     */
-    memset(&buffer, 0, sizeof(buffer));
-    buffer.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    buffer.memory = V4L2_MEMORY_MMAP;
+    while(1){
+        memset(&buffer, 0, sizeof(buffer));
+        buffer.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+        buffer.memory = V4L2_MEMORY_MMAP;
 
-    // Dequeue the buffer
-    if((ioctl(cam_fd, VIDIOC_DQBUF, &buffer))==-1){
-        perror("Error dequeing the buffer!");
-        exit(EXIT_FAILURE);
-    }
+        // Dequeue the buffer
+        if((ioctl(cam_fd, VIDIOC_DQBUF, &buffer))==-1){
+            perror("Error dequeing the buffer!");
+            exit(EXIT_FAILURE);
+        }
 
-    // Process the buffer
-    printf("\nCaptured image: %d bytes\n", buffer.length);
+        // Process the buffer
+        printf("\nCaptured image: %d bytes\n", buffer.length);
 
-    write_to_file((u_int8_t*)buffers[buffer.index], buffer.length);
+        write_to_file((u_int8_t*)buffers[buffer.index], buffer.length);
 
-    // Queue the buffer again
-    if((ioctl(cam_fd, VIDIOC_QBUF, &buffer))==-1){
-        perror("Error queing buffer!");
-        exit(EXIT_FAILURE);
+        // Queue the buffer again
+        if((ioctl(cam_fd, VIDIOC_QBUF, &buffer))==-1){
+            perror("Error queing buffer!");
+            exit(EXIT_FAILURE);
+        }
+
+        sleep(DURATION);
     }
 
 
