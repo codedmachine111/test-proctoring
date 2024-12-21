@@ -76,6 +76,29 @@ void start_streaming(int cam_fd){
     }
 }
 
+std::string exec(const std::string &command){
+    char buffer[100];
+    std::string res = "";
+
+    FILE *pipe = popen(command.c_str(), "r");
+    if(!pipe){
+        printf("Could not check open browsers\n");
+        return "";
+    }
+
+    while(fgets(buffer, sizeof(buffer), pipe) != NULL){
+        res += buffer;
+    }
+
+    int status = pclose(pipe);
+    if(status == -1){
+        printf("Error closing pipe!");
+        return "";
+    }
+
+    return res;
+}
+
 void detect_cheating(cv::CascadeClassifier face_classifer, cv::Mat image){
 
     time_t rawtime;
@@ -101,6 +124,12 @@ void detect_cheating(cv::CascadeClassifier face_classifer, cv::Mat image){
 
     if(faces.size() == 0){
         printf("NO FACE DETECTED | TIMESTAMP: %s\n", asctime(timeinfo));
+    }
+
+    // Check if browsers are open
+    std::string res = exec("ps -e | grep -e firefox -e brave -e chromium -e google-chrome | wc -l");
+    if(res != ""){
+        printf("BROWSER OPENED | TIMESTAMP: %s\n", asctime(timeinfo));
     }
 }
 

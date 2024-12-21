@@ -2,6 +2,7 @@
 #define IMAGE_CAPTURE_HPP
 
 #include <iostream>
+#include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
 #include <linux/videodev2.h>
