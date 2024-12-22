@@ -4,5 +4,6 @@ build
 *.jpg
 *.png
 *.raw
+*.txt
 
 .vscode

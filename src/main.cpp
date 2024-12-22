@@ -1,13 +1,47 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <pthread.h>
+#include <vector>
 
 #include "../include/image_capture.hpp"
+#include "../include/quiz.hpp"
+
+const char *QUIZ_FILENAME = "assets/test.txt";
+const char *ANS_FILENAME = "answers.txt";
+const int NUM_QUESTIONS = 7;
+
+struct cap_thread_args{
+    int camfd;
+    struct v4l2_buffer buffer;
+    void **buffers;
+    cv::CascadeClassifier classifier;
+};
+
+struct cap_thread_args *args;
+
+void *capture_thread_routine(void *args){
+    struct cap_thread_args *th_args;
+    th_args = (struct cap_thread_args*)args;
+
+    while(1){
+        /* 
+            Capture images continuously
+        */
+        capture_camera_stream(th_args->camfd, th_args->buffer, th_args->buffers, th_args->classifier);
+        sleep(DURATION);
+    }
+}
 
 int main(){
 
     int cam_fd;
-    
+    pthread_t tid;
+
+    char answers_buffer[1024];
+
+    args = (struct cap_thread_args*)malloc(sizeof(struct cap_thread_args));
+
     /* 
         Open the camera device
     */
@@ -46,17 +80,35 @@ int main(){
     }
 
     /* 
+        Display quiz questions
+    */
+    display_quiz(QUIZ_FILENAME, NUM_QUESTIONS);
+
+    /* 
         Start streaming
     */
     start_streaming(cam_fd);
 
-    /* 
-        Capture images continuously
-    */
+    args->camfd = cam_fd;
+    args->buffer = buffer;
+    args->buffers = buffers;
+    args->classifier = face_cascade;
+    pthread_create(&tid, NULL, capture_thread_routine, (void *)args);
+
+    // Main thread loop
     while(1){
-        capture_camera_stream(cam_fd, buffer, buffers, face_cascade);
-        sleep(DURATION);
+        if(fgets(answers_buffer, sizeof(answers_buffer), stdin)==NULL){
+            perror("Error reading input!");
+            exit(EXIT_FAILURE);
+        }
+        sleep(1);
+        break;
     }
+
+    /*
+        Write answers to file
+    */
+    write_to_file((uint8_t *)answers_buffer, strlen(answers_buffer), ANS_FILENAME);
 
     /*
         Cleanup

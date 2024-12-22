@@ -1,8 +1,7 @@
 #include "../include/image_capture.hpp"
 
-void write_to_file(u_int8_t *data, int data_len){
-    const char *output_filename = "capture.jpg";
-    FILE *fp = fopen(output_filename, "wb");
+void write_to_file(u_int8_t *data, int data_len, const char* filename){
+    FILE *fp = fopen(filename, "wb");
     if(!fp){
         perror("Error opening file!");
         exit(EXIT_FAILURE);
@@ -123,13 +122,15 @@ void detect_cheating(cv::CascadeClassifier face_classifer, cv::Mat image){
     face_classifer.detectMultiScale(image_gray, faces);
 
     if(faces.size() == 0){
-        printf("NO FACE DETECTED | TIMESTAMP: %s\n", asctime(timeinfo));
+        // TODO : log 
+        // printf("NO FACE DETECTED | TIMESTAMP: %s\n", asctime(timeinfo));
     }
 
     // Check if browsers are open
     std::string res = exec("ps -e | grep -e firefox -e brave -e chromium -e google-chrome | wc -l");
     if(res != ""){
-        printf("BROWSER OPENED | TIMESTAMP: %s\n", asctime(timeinfo));
+        // TODO : log 
+        // printf("BROWSERS ARE OPEN | TIMESTAMP: %s\n", asctime(timeinfo));
     }
 }
 
@@ -147,13 +148,11 @@ void capture_camera_stream(int cam_fd, struct v4l2_buffer buffer, void **buffers
         exit(EXIT_FAILURE);
     }
 
-    // Process the buffer
-    printf("\nCaptured image: %d bytes\n", buffer.length);
-
+    // printf("\nCaptured image: %d bytes\n", buffer.length);
     // Save captured image
     // write_to_file((u_int8_t*)buffers[buffer.index], buffer.length);
 
-    // Decode MJPEG data 
+    // Process the buffer: Decode MJPEG data 
     std::vector<uchar> mjpeg_data((uchar*)buffers[buffer.index], (uchar*)buffers[buffer.index] + buffer.length); // Raw image data in bytes
     cv::Mat image = cv::imdecode(mjpeg_data, cv::IMREAD_COLOR); // Decode as a BGR image
     if(image.empty()){

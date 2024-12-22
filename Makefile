@@ -21,7 +21,7 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.cpp
 # Link object files to create final executable
 $(TARGET): $(OBJFILES)
 	@mkdir -p $(BINDIR)
-	$(CC) $(OBJFILES) -o $(TARGET) $(OPENCV_LIBS)
+	$(CC) $(OBJFILES) -o $(TARGET) $(OPENCV_LIBS) -pthread 
 
 clean:
 	rm -rf $(BINDIR) $(BUILDDIR)

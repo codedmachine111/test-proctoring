@@ -26,7 +26,7 @@
 #define PIXEL_FORMAT V4L2_PIX_FMT_MJPEG
 #define REQ_BUFFERS 1
 
-void write_to_file(u_int8_t *data, int data_len);
+void write_to_file(u_int8_t *data, int data_len, const char* filename);
 void set_camera_format(int cam_fd, struct v4l2_format format);
 void request_buffers(int cam_fd, struct v4l2_requestbuffers reqbufs);
 void query_buffers_and_map(int cam_fd, struct v4l2_buffer buffer, void **buffers, int total_buffers);
