@@ -1,0 +1,41 @@
+1. ______ is a unique tag, usually a number identifies the file within the file system.
+a) File identifier
+b) File name
+c) File type
+d) None of the mentioned
+
+2. To create a file ____________
+a) allocate the space in file system
+b) make an entry for new file in directory
+c) allocate the space in file system & make an entry for new file in directory
+d) none of the mentioned
+
+3. Which file is a sequence of bytes organized into blocks understandable by the system’s linker?
+a) object file
+b) source file
+c) executable file
+d) text file
+
+4. What is the mounting of file system?
+a) crating of a filesystem
+b) deleting a filesystem
+c) attaching portion of the file system into a directory structure
+d) removing the portion of the file system into a directory structure
+
+5. Mapping of file is managed by ____________
+a) file metadata
+b) page table
+c) virtual memory
+d) file system
+
+6. When will file system fragmentation occur?
+a) unused space or single file are not contiguous
+b) used space is not contiguous
+c) unused space is non-contiguous
+d) multiple files are non-contiguous
+
+7. Mapping of network file system protocol to local file system is done by ____________
+a) network file system
+b) local file system
+c) volume manager
+d) remote mirror
